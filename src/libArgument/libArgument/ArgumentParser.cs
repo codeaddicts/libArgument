@@ -22,25 +22,27 @@ namespace Codeaddicts.libArgument
 		static void ParseField<T> (T options, List<string> args, string name) where T : class, new()
 		{
 			var field = typeof(T).GetField (name);
-			var attributes = field.GetCustomAttributes (false);
-			var enumerable = attributes as object[] ?? attributes.ToArray ();
-			var cast = enumerable.First (attrib => attrib as CastAs != null) as CastAs ?? new CastAs (CastingType.String);
-			foreach (var attrib in enumerable) {
-				if (attrib is Switch) {
+			var attributes = field.GetCustomAttributes (true);
+			var cast = attributes.FirstOrDefault (attrib => attrib as CastAs != null) as CastAs ?? new CastAs (CastingType.String);
+			foreach (var attrib in attributes) {
+				if (attrib as Switch != null) {
 					field.SetValue (options, true);
 					return;
 				}
-				if (!(attrib is Argument && attrib as Argument != null))
+				if (attrib as Argument == null)
 					continue;
 				var attribute = attrib as Argument;
-				if (!args.Contains (attribute.FriendlyShort) || args.Contains (attribute.FriendlyFull))
+				if (!(args.Contains (attribute.FriendlyShort) || args.Contains (attribute.FriendlyFull)))
 					continue;
 				var str = args.Contains (attribute.FriendlyShort) ? attribute.FriendlyShort : attribute.FriendlyFull;
-				var index = 1 + args.IndexOf (str);
+				var index = args.IndexOf (str) + 1;
 				var indexInRange = index <= args.Count - 1;
 				if (cast.Type != CastingType.Boolean && !indexInRange)
 					throw new ArgumentOutOfRangeException (string.Format ("Parameter of argument {0} out of range.", str));
 				switch (cast.Type) {
+				case CastingType.String:
+					field.SetValue (options, args [index]);
+					return;
 				case CastingType.Boolean:
 					bool bool_result;
 					if (!Boolean.TryParse (args [index], out bool_result))
