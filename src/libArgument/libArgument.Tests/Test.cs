@@ -12,7 +12,7 @@ namespace Codeaddicts.libArgument.Tests
 		{
 			public class Options {
 				[Argument ("", "msg")]
-				public string Msg;
+				public string Msg = "Test";
 
 				[Switch ("", "enable-log")]
 				public bool Log;
@@ -24,12 +24,26 @@ namespace Codeaddicts.libArgument.Tests
 				[Argument ("f", "float")]
 				[CastAs (CastingType.Float)]
 				public float AFloat;
+
+				[Argument ("b", "bool")]
+				[CastAs (CastingType.Boolean)]
+				public bool ABool;
 			}
 
 			[Test]
 			public void TestArgument () {
 				var args = new [] { "--msg", "Hello, World!" };
 				StringAssert.AreEqualIgnoringCase ("Hello, World!", ArgumentParser.Parse<Options> (args).Msg);
+			}
+
+			[Test]
+			public void TestDefaultArgument () {
+				StringAssert.AreEqualIgnoringCase ("Test", ArgumentParser.Parse<Options> (new string[] {}).Msg);
+			}
+
+			[Test]
+			public void TestDefaultBoolArgument () {
+				Assert.IsFalse (ArgumentParser.Parse<Options> (new string[] {}).ABool);
 			}
 
 			[Test]
@@ -46,10 +60,11 @@ namespace Codeaddicts.libArgument.Tests
 
 			[Test]
 			public void TestConversion () {
-				var args = new [] { "-n", "123", "-f", "3.1416" };
+				var args = new [] { "-n", "123", "-f", "3.1416", "--bool", "true" };
 				var options = ArgumentParser.Parse<Options> (args);
 				Assert.AreEqual (123, options.ANumber);
 				Assert.AreEqual (3.1416f, options.AFloat);
+				Assert.That (options.ABool);
 			}
 		}
 	}
