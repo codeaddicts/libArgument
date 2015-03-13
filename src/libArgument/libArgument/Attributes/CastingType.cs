@@ -11,7 +11,8 @@ namespace Codeaddicts.libArgument.Attributes
 		UInt32,
 		UInt64,
 		Long,
-		ULong
+		ULong,
+		Float
 	}
 }
 
