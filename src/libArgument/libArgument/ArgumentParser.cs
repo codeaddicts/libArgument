@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
+using Codeaddicts.libArgument.Attributes;
 
-namespace libArgument
+namespace Codeaddicts.libArgument
 {
 	public static class ArgumentParser
 	{
@@ -20,7 +21,7 @@ namespace libArgument
 		static void ParseField<T> (T options, List<string> args, string name) where T : class, new()
 		{
 			var field = typeof(T).GetField (name);
-			var attributes = field.GetCustomAttributes ();
+			var attributes = field.GetCustomAttributes (false);
 			var enumerable = attributes as object[] ?? attributes.ToArray ();
 			var cast = enumerable.First (attrib => attrib as CastAs != null) as CastAs ?? new CastAs (CastingType.String);
 			foreach (var attrib in enumerable) {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace libArgument
+namespace Codeaddicts.libArgument.Attributes
 {
 	[AttributeUsage (AttributeTargets.Field, AllowMultiple = true)]
 	public class Switch : Argument

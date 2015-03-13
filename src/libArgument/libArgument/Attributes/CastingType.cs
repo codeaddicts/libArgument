@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace libArgument
+namespace Codeaddicts.libArgument.Attributes
 {
 	public enum CastingType {
 		Object = 0,
