@@ -12,8 +12,8 @@ Features:
 And here's some code!
 
 ```cs
-using Codeaddicts.libArguments;
-using Codeaddicts.libArguments.Attributes;
+using Codeaddicts.libArgument;
+using Codeaddicts.libArgument.Attributes;
 
 // A simple class with some command-line options
 public class MyOptions
@@ -52,3 +52,13 @@ public class Program
     }
 }
 ```
+
+Now call the application like that:
+$ MyApp.exe -i test -o test --log --num 123 or
+$ MyApp.exe --input test --output test --log --num 123
+
+## How about optional arguments?
+Absolutely no problem!
+
+Just add a parameterless constructor to your Options class and initialize  
+your optional variables there. It's a piece of cake!
