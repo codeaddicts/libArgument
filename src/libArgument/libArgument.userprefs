@@ -1,10 +1,9 @@
 ﻿<Properties StartupItem="libArgument.Tests\libArgument.Tests.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="libArgument\Properties\AssemblyInfo.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="libArgument\Attributes\CastAs.cs">
     <Files>
-      <File FileName="libArgument\ArgumentParser.cs" Line="123" Column="123" />
-      <File FileName="libArgument.Tests\Test.cs" Line="4" Column="4" />
-      <File FileName="libArgument\Properties\AssemblyInfo.cs" Line="35" Column="35" />
+      <File FileName="libArgument\ArgumentParser.cs" Line="1" Column="1" />
+      <File FileName="libArgument\Attributes\CastAs.cs" Line="3" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

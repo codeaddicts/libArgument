@@ -25,7 +25,7 @@ namespace Codeaddicts.libArgument
 			var attributes = field.GetCustomAttributes (true);
 			var cast = attributes.FirstOrDefault (attrib => attrib as CastAs != null) as CastAs ?? new CastAs (CastingType.String);
 			foreach (var attrib in attributes) {
-				if (attrib as Switch != null) {
+				if (attrib as Switch != null && (args.Contains ((attrib as Switch).FriendlyShort) || args.Contains ((attrib as Switch).FriendlyFull))) {
 					field.SetValue (options, true);
 					return;
 				}
