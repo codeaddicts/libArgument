@@ -120,7 +120,6 @@ namespace Codeaddicts.libArgument
 
 				// Set the value of the field and return
 				field.SetValue (options, value);
-				return;
 			}
 		}
 	}
