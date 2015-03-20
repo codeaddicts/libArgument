@@ -2,14 +2,52 @@
 libArgument is a .NET library for handling command-line arguments like a boss.  
 It allows you to validate arguments on-the-fly and saves you hours of work.
 
+If you want to test the latest features, please download the source and compile it yourself.  
+The release may not be up-to-date.
+
 Features:
 
 * The generic parsing method works with any class
-* Create boolean switches with the 'Switch' attribute
-* Create arguments with parameters using the 'Argument' attribute
-* Cast argument texts to int32, int64, bool, float etc. using the 'CastAs' attribute
+* Boolean switches with the 'Switch' attribute
+* Arguments with parameters using the 'Argument' attribute
+* Automatically casts the argument to the type of the variable
+* Automatically infers the argument name from the variable name if no argument name is given
+* Allows you to use multiple argument or switch names for one variable
 
-And here's some code!
+## How does it work?
+It's really easy.  
+Here's a small example:
+
+```cs
+using Codeaddicts.libArgument;
+using Codeaddicts.libArgument.Attributes;
+
+// A simple class with some command-line options
+public class MyOptions {
+	[Argument] public string input;
+	[Argument] public string output;
+	[Switch] public bool verbose;
+}
+
+public class Program {
+	public static void Main (string[] args) {
+		// Let the magic happen
+		var options = ArgumentParser.Parse<MyOptions> (args);
+
+		// That's it! Now you can use the variables
+		Console.WriteLine ("Input: {0}", options.input);
+		Console.WriteLine ("Output: {0}", options.output);
+		Console.WriteLine ("Verbose: {0}", options.verbose ? "yes" : "no");
+	}
+}
+```
+
+Call the program like that:  
+$ MyApp.exe --input "path/to/input" --output "path/to/output" --verbose
+
+## Can I do more advanced stuff?
+Sure! You can do pretty much everything :P  
+Here's some more advanced code for you.
 
 ```cs
 using Codeaddicts.libArgument;
