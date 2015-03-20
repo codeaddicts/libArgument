@@ -18,15 +18,12 @@ namespace Codeaddicts.libArgument.Tests
 				public bool Log;
 
 				[Argument ("n", "num")]
-				[CastAs (CastingType.Int32)]
 				public int ANumber;
 
 				[Argument ("f", "float")]
-				[CastAs (CastingType.Float)]
 				public float AFloat;
 
 				[Argument ("b", "bool")]
-				[CastAs (CastingType.Boolean)]
 				public bool ABool;
 			}
 

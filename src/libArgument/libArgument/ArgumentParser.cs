@@ -4,97 +4,122 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Codeaddicts.libArgument.Attributes;
+using System.ComponentModel;
 
 namespace Codeaddicts.libArgument
 {
+	/// <summary>
+	/// Codeaddicts ArgumentParser
+	/// </summary>
 	public static class ArgumentParser
 	{
+		/// <summary>
+		/// Parses the specified arguments.
+		/// </summary>
+		/// <param name="args">Arguments.</param>
+		/// <typeparam name="T">The class that contains the options.</typeparam>
 		public static T Parse<T> (string[] args) where T : class, new()
 		{
+			// Instantiate the class that contains the options
 			T options = new T ();
+
+			// Create a new List<string> and fill it with the arguments
 			var list = new List<string> (args);
+
+			// Get all public fields from the class instance
 			var fields = typeof (T).GetFields (BindingFlags.Instance | BindingFlags.Public);
+
+			// Iterate over all fields
 			foreach (var item in fields)
+
+				// Parse the current field
 				ParseField<T> (options, list, item.Name);
+
+			// Return the generated class instance
 			return options;
 		}
 
+		/// <summary>
+		/// Generates and prints the argument doc.
+		/// </summary>
+		/// <typeparam name="T">The 1st type parameter.</typeparam>
+		static void PrintHelp<T> () where T : class, new()
+		{
+			// Not ready yet.
+		}
+
+		/// <summary>
+		/// Parses the field.
+		/// </summary>
+		/// <param name="options">Options.</param>
+		/// <param name="args">Arguments.</param>
+		/// <param name="name">Name.</param>
+		/// <typeparam name="T">The 1st type parameter.</typeparam>
 		static void ParseField<T> (T options, List<string> args, string name) where T : class, new()
 		{
+			// Get field
 			var field = typeof(T).GetField (name);
+
+			// Get attributes
 			var attributes = field.GetCustomAttributes (true);
-			var cast = attributes.FirstOrDefault (attrib => attrib as CastAs != null) as CastAs ?? new CastAs (CastingType.String);
+
+			// Iterate over the attributes
 			foreach (var attrib in attributes) {
-				if (attrib as Switch != null && (args.Contains ((attrib as Switch).FriendlyShort) || args.Contains ((attrib as Switch).FriendlyFull))) {
-					field.SetValue (options, true);
-					return;
+
+				// Check if the current attribute is a Switch attribute
+				var @switch = attrib as Switch;
+				if (@switch != null) {
+
+					// Check if the current attribute contains a valid parameter name
+					if (args.Contains (@switch.FriendlyShort) || args.Contains (@switch.FriendlyFull)) {
+
+						// Set value and return
+						field.SetValue (options, true);
+						return;
+					}
 				}
+
+				// Check if the current attribute is an Argument attribute
 				if (attrib as Argument == null)
+
+					// Skip this iteration
 					continue;
+
+				// Get the current attribute
 				var attribute = attrib as Argument;
+
+				// Check if the arguments contain any of the valid parameter names
 				if (!(args.Contains (attribute.FriendlyShort) || args.Contains (attribute.FriendlyFull)))
+
+					// Skip this iteration
 					continue;
-				var str = args.Contains (attribute.FriendlyShort) ? attribute.FriendlyShort : attribute.FriendlyFull;
-				var index = args.IndexOf (str) + 1;
-				var indexInRange = index <= args.Count - 1;
-				if (cast.Type != CastingType.Boolean && !indexInRange)
-					throw new ArgumentOutOfRangeException (string.Format ("Parameter of argument {0} out of range.", str));
-				switch (cast.Type) {
-				case CastingType.String:
-					field.SetValue (options, args [index]);
-					return;
-				case CastingType.Boolean:
-					bool bool_result;
-					if (!Boolean.TryParse (args [index], out bool_result))
-						throw new InvalidCastException (string.Format ("Can't cast parameter of argument {0} to Boolean.", str));
-					field.SetValue (options, bool_result);
-					return;
-				case CastingType.Object:
-					field.SetValue (options, args [index]);
-					return;
-				case CastingType.Int32:
-					int int32_result;
-					if (!Int32.TryParse (args [index], out int32_result))
-						throw new InvalidCastException (string.Format ("Can't cast parameter of argument {0} to Int32.", str));
-					field.SetValue (options, int32_result);
-					return;
-				case CastingType.Int64:
-					long int64_result;
-					if (!Int64.TryParse (args [index], out int64_result))
-						throw new InvalidCastException (string.Format ("Can't cast parameter of argument {0} to Int64.", str));
-					field.SetValue (options, int64_result);
-					return;
-				case CastingType.UInt32:
-					uint uint32_result;
-					if (!UInt32.TryParse (args [index], out uint32_result))
-						throw new InvalidCastException (string.Format ("Can't cast parameter of argument {0} to UInt32.", str));
-					field.SetValue (options, uint32_result);
-					return;
-				case CastingType.UInt64:
-					ulong uint64_result;
-					if (!UInt64.TryParse (args [index], out uint64_result))
-						throw new InvalidCastException (string.Format ("Can't cast parameter of argument {0} to UInt64.", str));
-					field.SetValue (options, uint64_result);
-					return;
-				case CastingType.Long:
-					long long_result;
-					if (!long.TryParse (args [index], out long_result))
-						throw new InvalidCastException (string.Format ("Can't cast parameter of argument {0} to long.", str));
-					field.SetValue (options, long_result);
-					return;
-				case CastingType.ULong:
-					ulong ulong_result;
-					if (!ulong.TryParse (args [index], out ulong_result))
-						throw new InvalidCastException (string.Format ("Can't cast parameter of argument {0} to ulong.", str));
-					field.SetValue (options, ulong_result);
-					return;
-				case CastingType.Float:
-					float float_result;
-					if (!float.TryParse (args [index], NumberStyles.Float, CultureInfo.InvariantCulture, out float_result))
-						throw new InvalidCastException (string.Format ("Can't cast parameter of argument {0} to float.", str));
-					field.SetValue (options, float_result);
-					return;
+
+				// Get the parameter name
+				var paramname = args.Contains (attribute.FriendlyShort) ? attribute.FriendlyShort : attribute.FriendlyFull;
+
+				// Get the type of the field
+				var type = field.FieldType;
+
+				// Get the index of the current value
+				var index = args.IndexOf (paramname) + 1;
+
+				// Check if the index is in the range of our parameter count
+				var indexInRange = index < args.Count;
+
+				// Check if the index is in range of our parameter count
+				if (!indexInRange)
+					throw new ArgumentOutOfRangeException (string.Format ("Parameter of argument {0} is out of range.", paramname));
+
+				// Cast the string to the type of the field
+				object value;
+				try {
+					value = TypeDescriptor.GetConverter (type).ConvertFromInvariantString (args [index]);
+				} catch {
+					throw new Exception (string.Format ("Cannot convert <string> to <{0}>.", type));
 				}
+
+				// Set the value of the field and return
+				field.SetValue (options, value);
 			}
 		}
 	}

@@ -35,8 +35,6 @@
     <Compile Include="ArgumentParser.cs" />
     <Compile Include="Attributes\Switch.cs" />
     <Compile Include="Attributes\Argument.cs" />
-    <Compile Include="Attributes\CastAs.cs" />
-    <Compile Include="Attributes\CastingType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
