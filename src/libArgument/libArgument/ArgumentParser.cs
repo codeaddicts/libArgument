@@ -70,6 +70,12 @@ namespace Codeaddicts.libArgument
 				var @switch = attrib as Switch;
 				if (@switch != null) {
 
+					// Check if infername is set to true
+					if (@switch.infername)
+
+						// Instantiate a new Switch with the name of the field
+						@switch = @switch.InferName (field.Name);
+
 					// Check if the current attribute contains a valid parameter name
 					if (args.Contains (@switch.FriendlyShort) || args.Contains (@switch.FriendlyFull)) {
 
@@ -89,11 +95,10 @@ namespace Codeaddicts.libArgument
 					continue;
 
 				// Check if infername is set to true
-				if (attribute.infername) {
+				if (attribute.infername)
 
 					// Instantiate a new Attribute with the name of the field
 					attribute = attribute.InferName (field.Name);
-				}
 
 				// Check if the arguments contain any of the valid parameter names
 				if (!(args.Contains (attribute.FriendlyShort) || args.Contains (attribute.FriendlyFull)))

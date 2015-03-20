@@ -14,14 +14,18 @@ namespace Codeaddicts.libArgument.Tests
 
 			[Argument]
 			public int num;
+
+			[Switch]
+			public bool something;
 		}
 
 		[Test]
 		public void TestInferName () {
-			var args = new string[] { "--msg", "Test", "--num", "1234" };
+			var args = new string[] { "--msg", "Test", "--num", "1234", "--something" };
 			var options = ArgumentParser.Parse<Options> (args);
 			StringAssert.AreEqualIgnoringCase ("Test", options.msg);
 			Assert.AreEqual (1234, options.num);
+			Assert.That (options.something);
 		}
 	}
 }

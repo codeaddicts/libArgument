@@ -18,24 +18,41 @@ using Codeaddicts.libArgument.Attributes;
 // A simple class with some command-line options
 public class MyOptions
 {
-	// -i path/to/file
+	// --str "Hello, World!"
+	[Argument]
+	public string str;
+
     // --input path/to/file
-	[Argument ("i", "input")]
+	[Argument ("input")]
 	public string Input;
     
     // -o path/to/file
     // --output path/to/file
     [Argument ("o", "output")]
     public string Output;
+
+    // --test "Test"
+    // --woop "Test"
+    [Argument ("test")]
+    [Argument ("woop")]
+    public string Test;
+
+    // --num 123
+    [Argument ("num")]
+    public UInt64 ANumber;
     
     // --log
-    [Switch ("", "log")]
-    public bool EnableLog;
-    
-    // --num 123
-    [Argument ("", "num")]
-    [CastAs (CastingType.UInt64)]
-    public UInt64 ANumber;
+    [Switch]
+    public bool log;
+
+    // --enable-something
+    [Switch ("enable-something")]
+    public bool Something;
+
+    // -a
+    // --annoyme
+    [Switch ("a", "annoyme")]
+    public bool AnotherSwitch;
 }
 
 public class Program
@@ -49,11 +66,12 @@ public class Program
         Console.WriteLine ("Input file: " + options.Input);
         Console.WriteLine ("Output file: " + options.Output);
         Console.WriteLine ("Your number: " + options.ANumber);
+        ...
     }
 }
 ```
 
-Now call the application like that:  
+Now call the application like that:
 $ MyApp.exe -i test -o test --log --num 123 or  
 $ MyApp.exe --input test --output test --log --num 123
 
