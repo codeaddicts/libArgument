@@ -71,7 +71,7 @@ public class Program
 }
 ```
 
-Now call the application like that:
+Now call the application like that:  
 $ MyApp.exe -i test -o test --log --num 123 or  
 $ MyApp.exe --input test --output test --log --num 123
 
