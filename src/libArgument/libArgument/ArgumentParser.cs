@@ -79,14 +79,21 @@ namespace Codeaddicts.libArgument
 					}
 				}
 
+				// Get the current attribute
+				var attribute = attrib as Argument;
+
 				// Check if the current attribute is an Argument attribute
-				if (attrib as Argument == null)
+				if (attribute == null)
 
 					// Skip this iteration
 					continue;
 
-				// Get the current attribute
-				var attribute = attrib as Argument;
+				// Check if infername is set to true
+				if (attribute.infername) {
+
+					// Instantiate a new Attribute with the name of the field
+					attribute = attribute.InferName (field.Name);
+				}
 
 				// Check if the arguments contain any of the valid parameter names
 				if (!(args.Contains (attribute.FriendlyShort) || args.Contains (attribute.FriendlyFull)))
