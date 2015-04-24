@@ -14,7 +14,7 @@ namespace Codeaddicts.libArgument.Attributes
 		public Switch (string shortname, string fullname) : base (shortname, fullname) {
 		}
 
-		public Switch InferName (string name) {
+		public new Switch InferName (string name) {
 			return new Switch (name);
 		}
 	}

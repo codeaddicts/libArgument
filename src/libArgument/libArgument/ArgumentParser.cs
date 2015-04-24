@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Codeaddicts.libArgument.Attributes;
-using System.ComponentModel;
+using Codeaddicts.libArgument.Documentation;
 
 namespace Codeaddicts.libArgument
 {
@@ -13,6 +14,8 @@ namespace Codeaddicts.libArgument
 	/// </summary>
 	public static class ArgumentParser
 	{
+		static List<DocNode> documentation;
+
 		/// <summary>
 		/// Parses the specified arguments.
 		/// </summary>
@@ -20,20 +23,29 @@ namespace Codeaddicts.libArgument
 		/// <typeparam name="T">The class that contains the options.</typeparam>
 		public static T Parse<T> (string[] args) where T : class, new()
 		{
+			// Create the documentation cache for this class
+			if (documentation == null)
+				documentation = new List<DocNode> ();
+			else
+				documentation.Clear ();
+
 			// Instantiate the class that contains the options
 			T options = new T ();
 
-			// Create a new List<string> and fill it with the arguments
+			// Create a new List<string> from the supplied arguments
 			var list = new List<string> (args);
 
 			// Get all public fields from the class instance
 			var fields = typeof (T).GetFields (BindingFlags.Instance | BindingFlags.Public);
 
 			// Iterate over all fields
-			foreach (var item in fields)
+			foreach (var item in fields) {
 
 				// Parse the current field
+				ParseDoc<T> (options, item.Name);
 				ParseField<T> (options, list, item.Name);
+
+			}
 
 			// Return the generated class instance
 			return options;
@@ -42,10 +54,36 @@ namespace Codeaddicts.libArgument
 		/// <summary>
 		/// Generates and prints the argument doc.
 		/// </summary>
-		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		static void PrintHelp<T> () where T : class, new()
+		/// <typeparam name="T">The class that contains the options.</typeparam>
+		public static void Help ()
 		{
-			// Not ready yet.
+			documentation.Sort ((n1, n2) => {
+				if (!string.IsNullOrEmpty (n1.ShortName) && !string.IsNullOrEmpty (n2.ShortName))
+					return n1.ShortName.CompareTo (n2.ShortName);
+				if (string.IsNullOrEmpty (n1.FullName) && string.IsNullOrEmpty (n2.ShortName))
+					return n1.ShortName.CompareTo (n2.FullName);
+				if (!string.IsNullOrEmpty (n1.FullName) && !string.IsNullOrEmpty (n2.FullName))
+					return n1.FullName.CompareTo (n2.FullName);
+				if (string.IsNullOrEmpty (n1.ShortName) && string.IsNullOrEmpty (n2.FullName))
+					return n1.FullName.CompareTo (n2.ShortName);
+				return n1.FieldName.CompareTo (n2.FieldName);
+			});
+			var accum = new StringBuilder ();
+			foreach (var node in documentation) {
+				if (!string.IsNullOrEmpty (node.ShortName))
+					accum.AppendFormat ("{0}", node.ShortName.PadRight (Console.WindowWidth / 10) + "| ");
+				if (!string.IsNullOrEmpty (node.ShortName) && !string.IsNullOrEmpty (node.FullName))
+					accum.AppendFormat ("\n{0}", node.FullName.PadRight (Console.WindowWidth / 10) + "| ");
+				else if (string.IsNullOrEmpty (node.ShortName) && !string.IsNullOrEmpty (node.FullName))
+					accum.Append (node.FullName.PadRight (Console.WindowWidth / 10) + "| ");
+				else if (string.IsNullOrEmpty (node.ShortName) && string.IsNullOrEmpty (node.FullName))
+					accum.Append (node.FieldName.PadRight (Console.WindowWidth / 10) + "| ");
+				if (!string.IsNullOrEmpty (node.Description))
+					accum.AppendLine (node.Description);
+				else
+					accum.AppendLine ("<No Description>");
+			}
+			Console.WriteLine (accum);
 		}
 
 		/// <summary>
@@ -53,12 +91,12 @@ namespace Codeaddicts.libArgument
 		/// </summary>
 		/// <param name="options">Options.</param>
 		/// <param name="args">Arguments.</param>
-		/// <param name="name">Name.</param>
+		/// <param name="fieldname">Name.</param>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		static void ParseField<T> (T options, List<string> args, string name) where T : class, new()
+		static void ParseField<T> (T options, List<string> args, string fieldname) where T : class, new()
 		{
 			// Get field
-			var field = typeof(T).GetField (name);
+			var field = typeof(T).GetField (fieldname);
 
 			// Get attributes
 			var attributes = field.GetCustomAttributes (true);
@@ -66,7 +104,7 @@ namespace Codeaddicts.libArgument
 			// Iterate over the attributes
 			foreach (var attrib in attributes) {
 
-				// Check if the current attribute is a Switch attribute
+				// Check if the current attribute is of type Switch
 				var @switch = attrib as Switch;
 				if (@switch != null) {
 
@@ -135,6 +173,53 @@ namespace Codeaddicts.libArgument
 				return;
 			}
 		}
+
+		static void ParseDoc<T> (T options, string fieldname) where T : class, new()
+		{
+			// Get field
+			var field = typeof(T).GetField (fieldname);
+
+			// Get or create a documentation node for this field
+			var node = documentation.Exists (_node => _node.FieldName == fieldname)
+				? documentation.First (_node => _node.FieldName == fieldname)
+				: new DocNode (fieldname);
+
+			// Get attributes
+			var attributes = field.GetCustomAttributes (true);
+
+			// Iterate over all attributes
+			foreach (var attrib in attributes) {
+
+				// Check if the current attribute is of type Argument or Switch
+				var xarg = attrib as Argument;
+				var xswitch = attrib as Switch;
+				if (xswitch != null) {
+					if (xswitch.infername)
+						xswitch = xswitch.InferName (field.Name);
+					node.ShortName = xswitch.FriendlyShort;
+					node.FullName = xswitch.FriendlyFull;
+				} else if (xarg != null) {
+					if (xarg.infername)
+						xarg = xarg.InferName (field.Name);
+					node.ShortName = xarg.FriendlyShort;
+					node.FullName = xarg.FriendlyFull;
+				}
+
+				// Check if the current attribute is of type Docs
+				var doc = attrib as Docs;
+
+				// If not, skip this attribute
+				if (doc == null)
+					continue;
+
+				// Return the documentation for this field
+				node.Description = doc.description;
+			}
+
+			if (documentation.Exists (_node => _node.FieldName == fieldname)) {
+				documentation.Remove (documentation.First (_node => _node.FieldName == fieldname));
+			}
+			documentation.Add (node);
+		}
 	}
 }
-

@@ -35,10 +35,13 @@
     <Compile Include="ArgumentParser.cs" />
     <Compile Include="Attributes\Switch.cs" />
     <Compile Include="Attributes\Argument.cs" />
+    <Compile Include="Attributes\Docs.cs" />
+    <Compile Include="Documentation\DocNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Attributes\" />
+    <Folder Include="Documentation\" />
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
