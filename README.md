@@ -1,3 +1,6 @@
+[![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)](http://creativecommons.org/publicdomain/zero/1.0/)  
+To the extent possible under law, [Codeaddicts](https://github.com/codeaddicts) has waived all copyright and related or neighboring rights to Codeaddicts.libArgument.
+
 # libArgument
 libArgument is a .NET library for handling command-line arguments like a boss.  
 It allows you to validate arguments on-the-fly and saves you hours of work.
