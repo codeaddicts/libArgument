@@ -2,8 +2,29 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
   <MonoDevelop.Ide.Workbench ActiveDocument="libArgument\ArgumentParser.cs">
     <Files>
-      <File FileName="libArgument\ArgumentParser.cs" Line="7" Column="7" />
+      <File FileName="libArgument\ArgumentParser.cs" Line="151" Column="66" />
+      <File FileName="libArgument.Tests\NewFeatureTests.cs" Line="15" Column="13" />
     </Files>
+    <Pads>
+      <Pad Id="MonoDevelop.NUnit.TestPad">
+        <State name="__root__">
+          <Node name="libArgument" expanded="True">
+            <Node name="libArgument.Tests" expanded="True">
+              <Node name="Codeaddicts" expanded="True">
+                <Node name="libArgument" expanded="True">
+                  <Node name="Tests" expanded="True">
+                    <Node name="GeneralTests" expanded="True" />
+                    <Node name="NewFeatureTests" expanded="True">
+                      <Node name="TestDocumentation" selected="True" />
+                    </Node>
+                  </Node>
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
