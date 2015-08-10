@@ -30,13 +30,13 @@ namespace Codeaddicts.libArgument
 				documentation.Clear ();
 
 			// Instantiate the class that contains the options
-			T options = new T ();
+			var options = new T ();
 
 			// Create a new List<string> from the supplied arguments
 			var list = new List<string> (args);
 
 			// Get all public fields from the class instance
-			var fields = typeof (T).GetFields (BindingFlags.Instance | BindingFlags.Public);
+			var fields = options.GetType ().GetFields (BindingFlags.Instance | BindingFlags.Public);
 
 			// Iterate over all fields
 			foreach (var item in fields) {
@@ -57,31 +57,17 @@ namespace Codeaddicts.libArgument
 		/// <typeparam name="T">The class that contains the options.</typeparam>
 		public static void Help ()
 		{
-			documentation.Sort ((n1, n2) => {
-				if (!string.IsNullOrEmpty (n1.ShortName) && !string.IsNullOrEmpty (n2.ShortName))
-					return n1.ShortName.CompareTo (n2.ShortName);
-				if (string.IsNullOrEmpty (n1.FullName) && string.IsNullOrEmpty (n2.ShortName))
-					return n1.ShortName.CompareTo (n2.FullName);
-				if (!string.IsNullOrEmpty (n1.FullName) && !string.IsNullOrEmpty (n2.FullName))
-					return n1.FullName.CompareTo (n2.FullName);
-				if (string.IsNullOrEmpty (n1.ShortName) && string.IsNullOrEmpty (n2.FullName))
-					return n1.FullName.CompareTo (n2.ShortName);
-				return n1.FieldName.CompareTo (n2.FieldName);
-			});
 			var accum = new StringBuilder ();
 			foreach (var node in documentation) {
-				if (!string.IsNullOrEmpty (node.ShortName))
-					accum.AppendFormat ("{0}", node.ShortName.PadRight (Console.WindowWidth / 10) + "| ");
-				if (!string.IsNullOrEmpty (node.ShortName) && !string.IsNullOrEmpty (node.FullName))
-					accum.AppendFormat ("\n{0}", node.FullName.PadRight (Console.WindowWidth / 10) + "| ");
-				else if (string.IsNullOrEmpty (node.ShortName) && !string.IsNullOrEmpty (node.FullName))
-					accum.Append (node.FullName.PadRight (Console.WindowWidth / 10) + "| ");
-				else if (string.IsNullOrEmpty (node.ShortName) && string.IsNullOrEmpty (node.FullName))
-					accum.Append (node.FieldName.PadRight (Console.WindowWidth / 10) + "| ");
-				if (!string.IsNullOrEmpty (node.Description))
-					accum.AppendLine (node.Description);
-				else
-					accum.AppendLine ("<No Description>");
+				if (node.Names.Any ()) {
+					foreach (var name in node.Names) {
+						accum.AppendFormat ("{0,-20} | ", name);
+						if (!string.IsNullOrEmpty (node.Description))
+							accum.AppendLine (node.Description);
+						else
+							accum.AppendLine ("<No Description>");
+					}
+				}
 			}
 			Console.WriteLine (accum);
 		}
@@ -96,7 +82,7 @@ namespace Codeaddicts.libArgument
 		static void ParseField<T> (T options, List<string> args, string fieldname) where T : class, new()
 		{
 			// Get field
-			var field = typeof(T).GetField (fieldname);
+			var field = options.GetType ().GetField (fieldname);
 
 			// Get attributes
 			var attributes = field.GetCustomAttributes (true);
@@ -107,77 +93,58 @@ namespace Codeaddicts.libArgument
 				// Check if the current attribute is of type Switch
 				var @switch = attrib as Switch;
 				if (@switch != null) {
+					@switch.AutoInfer (field.Name);
 
-					// Check if infername is set to true
-					if (@switch.infername)
-
-						// Instantiate a new Switch with the name of the field
-						@switch = @switch.InferName (field.Name);
-
-					// Check if the current attribute contains a valid parameter name
-					if (args.Contains (@switch.FriendlyShort) || args.Contains (@switch.FriendlyFull)) {
-
-						// Set value and return
-						field.SetValue (options, true);
-						return;
+					var @continue = false;
+					foreach (var arg in args) {
+						if (@switch.names.Any (str => arg == str)) {
+							field.SetValue (options, true);
+							@continue = true;
+							break;
+						}
 					}
+
+					if (@continue)
+						continue;
 				}
 
 				// Get the current attribute
-				var attribute = attrib as Argument;
+				var argument = attrib as Argument;
 
 				// Check if the current attribute is an Argument attribute
-				if (attribute == null)
+				if (argument != null) {
+					argument.AutoInfer (field.Name);
 
-					// Skip this iteration
-					continue;
+					foreach (var arg in args) {
+						if (argument.names.Any (str => arg == str)) {
+							
+							var next = args.SkipWhile (str => arg != str).Skip (1).FirstOrDefault ();
+							if (next == default (string))
+								throw new ArgumentOutOfRangeException ();
+							
+							Console.WriteLine (next);
 
-				// Check if infername is set to true
-				if (attribute.infername)
+							// Cast the string to the type of the field
+							object value;
+							try {
+								value = TypeDescriptor.GetConverter (field.FieldType).ConvertFromInvariantString (next);
+							} catch {
+								throw new Exception (string.Format ("Cannot convert <string> to <{0}>.", field.FieldType));
+							}
 
-					// Instantiate a new Attribute with the name of the field
-					attribute = attribute.InferName (field.Name);
-
-				// Check if the arguments contain any of the valid parameter names
-				if (!(args.Contains (attribute.FriendlyShort) || args.Contains (attribute.FriendlyFull)))
-
-					// Skip this iteration
-					continue;
-
-				// Get the parameter name
-				var paramname = args.Contains (attribute.FriendlyShort) ? attribute.FriendlyShort : attribute.FriendlyFull;
-
-				// Get the type of the field
-				var type = field.FieldType;
-
-				// Get the index of the current value
-				var index = args.IndexOf (paramname) + 1;
-
-				// Check if the index is in the range of our parameter count
-				var indexInRange = index < args.Count;
-
-				// Check if the index is in range of our parameter count
-				if (!indexInRange)
-					throw new ArgumentOutOfRangeException (string.Format ("Parameter of argument {0} is out of range.", paramname));
-
-				// Cast the string to the type of the field
-				object value;
-				try {
-					value = TypeDescriptor.GetConverter (type).ConvertFromInvariantString (args [index]);
-				} catch {
-					throw new Exception (string.Format ("Cannot convert <string> to <{0}>.", type));
+							// Set the value of the field and return
+							field.SetValue (options, value);
+							continue;
+						}
+					}
 				}
-
-				// Set the value of the field and return
-				field.SetValue (options, value);
-				return;
 			}
 		}
 
 		static void ParseDoc<T> (T options, string fieldname) where T : class, new()
 		{
 			// Get field
-			var field = typeof(T).GetField (fieldname);
+			var field = options.GetType ().GetField (fieldname);
 
 			// Get or create a documentation node for this field
 			var node = documentation.Exists (_node => _node.FieldName == fieldname)
@@ -192,17 +159,9 @@ namespace Codeaddicts.libArgument
 
 				// Check if the current attribute is of type Argument or Switch
 				var xarg = attrib as Argument;
-				var xswitch = attrib as Switch;
-				if (xswitch != null) {
-					if (xswitch.infername)
-						xswitch = xswitch.InferName (field.Name);
-					node.ShortName = xswitch.FriendlyShort;
-					node.FullName = xswitch.FriendlyFull;
-				} else if (xarg != null) {
-					if (xarg.infername)
-						xarg = xarg.InferName (field.Name);
-					node.ShortName = xarg.FriendlyShort;
-					node.FullName = xarg.FriendlyFull;
+				if (xarg != null) {
+					xarg.AutoInfer (field.Name);
+					node.Names = xarg.names;
 				}
 
 				// Check if the current attribute is of type Docs
@@ -216,9 +175,9 @@ namespace Codeaddicts.libArgument
 				node.Description = doc.description;
 			}
 
-			if (documentation.Exists (_node => _node.FieldName == fieldname)) {
+			if (documentation.Exists (_node => _node.FieldName == fieldname))
 				documentation.Remove (documentation.First (_node => _node.FieldName == fieldname));
-			}
+			
 			documentation.Add (node);
 		}
 	}

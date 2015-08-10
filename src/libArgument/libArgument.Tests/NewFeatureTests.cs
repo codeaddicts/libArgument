@@ -37,8 +37,7 @@ namespace Codeaddicts.libArgument.Tests
 		[Test]
 		public void TestDocumentation () {
 			var options = ArgumentParser.Parse<Options> (new string[] { });
-			ArgumentParser.Help ();
-			Assert.Pass ();
+			Assert.DoesNotThrow (ArgumentParser.Help);
 		}
 	}
 }

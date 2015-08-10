@@ -9,19 +9,19 @@ namespace Codeaddicts.libArgument.Tests
 	public class GeneralTests
 	{
 		public class Options {
-			[Argument ("", "msg")]
+			[Argument ("--msg")]
 			public string Msg = "Test";
 
-			[Switch ("", "enable-log")]
+			[Switch ("--enable-log")]
 			public bool Log;
 
-			[Argument ("n", "num")]
+			[Argument ("-n", "--num")]
 			public int ANumber;
 
-			[Argument ("f", "float")]
+			[Argument ("-f", "--float")]
 			public float AFloat;
 
-			[Argument ("b", "bool")]
+			[Argument ("-b", "--bool")]
 			public bool ABool;
 		}
 
@@ -50,7 +50,7 @@ namespace Codeaddicts.libArgument.Tests
 		[Test]
 		public void TestSwitch () {
 			var args = new [] { "--enable-log" };
-			Assert.AreEqual (true, ArgumentParser.Parse<Options> (args).Log);
+			Assert.That (ArgumentParser.Parse<Options> (args).Log);
 		}
 
 		[Test]
