@@ -64,22 +64,22 @@ public class MyOptions
 	public string str;
 
     // --input path/to/file
-	[Argument ("input")]
+	[Argument ("--input")]
 	public string Input;
     
     // -o path/to/file
     // --output path/to/file
-    [Argument ("o", "output")]
+    [Argument ("-o", "--output")]
     public string Output;
 
     // --test "Test"
     // --woop "Test"
-    [Argument ("test")]
-    [Argument ("woop")]
+    [Argument ("--test")]
+    [Argument ("--woop")]
     public string Test;
 
     // --num 123
-    [Argument ("num")]
+    [Argument ("--num")]
     public UInt64 ANumber;
     
     // --log
@@ -87,12 +87,12 @@ public class MyOptions
     public bool log;
 
     // --enable-something
-    [Switch ("enable-something")]
+    [Switch ("--enable-something")]
     public bool Something;
 
     // -a
     // --annoyme
-    [Switch ("a", "annoyme")]
+    [Switch ("-a", "--annoyme")]
     public bool AnotherSwitch;
 }
 
