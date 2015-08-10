@@ -1,4 +1,4 @@
-﻿<Properties StartupItem="libArgument.Tests\libArgument.Tests.csproj">
+﻿<Properties StartupItem="libArgument.Tests\libArgument.Tests.csproj" GitUserInfo="UsingGIT">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
   <MonoDevelop.Ide.Workbench ActiveDocument="libArgument\ArgumentParser.cs">
     <Files>

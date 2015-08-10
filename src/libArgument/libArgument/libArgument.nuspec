@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package >
   <metadata>
-    <id>libArgument</id>
-    <version>0.1.5604.7101</version>
+    <id>Codeaddicts.libArgument</id>
+    <version>0.1.5700.24739</version>
     <authors>Splitty</authors>
     <owners>Codeaddicts</owners>
     <licenseUrl>https://creativecommons.org/publicdomain/zero/1.0/</licenseUrl>
@@ -10,7 +10,7 @@
     <iconUrl>https://avatars3.githubusercontent.com/u/10135278</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A .NET library for handling command-line arguments like a boss.</description>
-    <releaseNotes>Beta release</releaseNotes>
+    <releaseNotes>Stable release.</releaseNotes>
     <copyright>No copyright</copyright>
     <tags>Commandline Argument Parser Generic .Net DotNet CSharp Codeaddicts libArgument</tags>
   </metadata>
