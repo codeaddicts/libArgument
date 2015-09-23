@@ -116,18 +116,20 @@ namespace Codeaddicts.libArgument
 					argument.AutoInfer (field.Name);
 
 					foreach (var arg in args) {
-						if (argument.names.Any (str => arg == str)) {
+						
+						if (argument.names.Any (str => arg.Contains ("=") ? arg.StartsWith (str) && arg.Length > str.Length && arg[str.Length] == '=' : arg == str)) {
 							
-							var next = args.SkipWhile (str => arg != str).Skip (1).FirstOrDefault ();
-							if (next == default (string))
+							var next = arg.Contains ("=")
+								? arg.Substring (arg.IndexOf ("=") + 1)
+								: args.SkipWhile (str => arg != str).Skip (1).FirstOrDefault ();
+							
+							if (next == null)
 								throw new ArgumentOutOfRangeException ();
-							
-							Console.WriteLine (next);
 
 							// Cast the string to the type of the field
 							object value;
 							try {
-								value = TypeDescriptor.GetConverter (field.FieldType).ConvertFromInvariantString (next);
+								value = TypeDescriptor.GetConverter (field.FieldType).ConvertFromInvariantString (next.Trim ('"'));
 							} catch {
 								throw new Exception (string.Format ("Cannot convert <string> to <{0}>.", field.FieldType));
 							}
