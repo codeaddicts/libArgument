@@ -14,14 +14,14 @@ The release may not be up-to-date.
 Features:
 
 * The generic parsing method works with any class
-* Supports Windows-style arguments (/arg value)
-* Supports GNU-style switches (-a) and long-style arguments (--arg=value)
+* Supports Windows-style arguments: `/arg value`
+* Supports POSIX-style switches: `-a` and GNU long-style arguments: `--arg=value`
 * Supports arbitrarily many argument names for any variable
-* Styles can be mixed (eg -a --arg1 value /arg2 value --arg3=value)
+* Styles can be mixed: `-a --arg1 value /arg2 value --arg3=value`
 * Automatically casts the argument to the correct type
 * Automatically infers the argument name from the variable name if no argument name is given
 
-TODO: Add GNU short style support (-a -x equals -ax)
+TODO: Add POSIX short style support (`-a -b -c` equals `-abc`)
 
 ## How does it work?
 It's really easy.  
