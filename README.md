@@ -15,7 +15,8 @@ Features:
 
 * The generic parsing method works with any class
 * Supports Windows-style arguments: `/arg value`
-* Supports POSIX-style switches: `-a` and GNU long-style arguments: `--arg=value`
+* Supports POSIX style switches and arguments: `-a -b value`
+* Supports GNU long-style arguments: `--arg=value`
 * Supports arbitrarily many argument names for any variable
 * Styles can be mixed: `-a --arg1 value /arg2 value --arg3=value`
 * Automatically casts the argument to the correct type
