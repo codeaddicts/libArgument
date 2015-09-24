@@ -23,8 +23,6 @@ Features:
 * Automatically casts the argument to the correct type
 * Automatically infers the argument name from the variable name if no argument name is given
 
-TODO: Add POSIX short style support (`-a -b -c` equals `-abc`)
-
 ## How does it work?
 It's really easy.  
 Here's a small example:
