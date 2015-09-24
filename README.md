@@ -1,4 +1,7 @@
-[![CC0](http://i.creativecommons.org/p/zero/1.0/88x31.png)](http://creativecommons.org/publicdomain/zero/1.0/)  
+[![](https://img.shields.io/nuget/v/Nuget.Core.svg)](https://www.nuget.org/packages/Codeaddicts.libArgument)
+[![](https://img.shields.io/github/license/codeaddicts/libargument.svg)](https://creativecommons.org/publicdomain/zero/1.0/)
+[![](https://img.shields.io/github/issues/codeaddicts/libargument.svg)](https://github.com/codeaddicts/libArgument/issues)
+
 To the extent possible under law, [Codeaddicts](https://github.com/codeaddicts) has waived all copyright and related or neighboring rights to Codeaddicts.libArgument.
 
 # libArgument
@@ -11,11 +14,14 @@ The release may not be up-to-date.
 Features:
 
 * The generic parsing method works with any class
-* Boolean switches with the 'Switch' attribute
-* Arguments with parameters using the 'Argument' attribute
-* Automatically casts the argument to the type of the variable
+* Supports Windows-style arguments (/arg value)
+* Supports GNU-style switches (-a) and long-style arguments (--arg=value)
+* Supports arbitrarily many argument names for any variable
+* Styles can be mixed (eg -a --arg1 value /arg2 value --arg3=value)
+* Automatically casts the argument to the correct type
 * Automatically infers the argument name from the variable name if no argument name is given
-* Allows you to use multiple argument or switch names for one variable
+
+TODO: Add GNU short style support (-a -x equals -ax)
 
 ## How does it work?
 It's really easy.  
