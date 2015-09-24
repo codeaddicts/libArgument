@@ -20,6 +20,10 @@ namespace Codeaddicts.libArgument.Tests
 			[Switch]
 			[Docs ("A something")]
 			public bool something;
+
+			[Switch ("-a")] public bool a;
+			[Switch ("-b")] public bool b;
+			[Switch ("-c")] public bool c;
 		}
 
 		[Test]
@@ -43,6 +47,14 @@ namespace Codeaddicts.libArgument.Tests
 			StringAssert.AreEqualIgnoringCase ("test", options.msg);
 			Assert.AreEqual (1234, options.num);
 			Assert.That (options.something);
+		}
+
+		[Test]
+		public void TestPOSIXStyleSwitches () {
+			var options = ArgumentParser.Parse<Options> (new [] { "-abc" });
+			Assert.That (options.a);
+			Assert.That (options.b);
+			Assert.That (options.c);
 		}
 	}
 }

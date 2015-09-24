@@ -81,6 +81,13 @@ namespace Codeaddicts.libArgument
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
 		static void ParseField<T> (T options, List<string> args, string fieldname) where T : class, new()
 		{
+			var switches = args
+				.Where (arg => arg.Length > 0 && !arg.StartsWith ("--") && arg [0] == '-')
+				.SelectMany (arg => arg.Substring (1)).ToList ();
+			
+			foreach (var @switch in switches)
+				args.Add (string.Format ("-{0}", @switch));
+
 			// Get field
 			var field = options.GetType ().GetField (fieldname);
 
