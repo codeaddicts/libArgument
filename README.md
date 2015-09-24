@@ -1,4 +1,4 @@
-[![](https://img.shields.io/nuget/v/Nuget.Core.svg)](https://www.nuget.org/packages/Codeaddicts.libArgument)
+[![](https://img.shields.io/nuget/v/Codeaddicts.libArgument.svg)](https://www.nuget.org/packages/Codeaddicts.libArgument)
 [![](https://img.shields.io/github/license/codeaddicts/libargument.svg)](https://creativecommons.org/publicdomain/zero/1.0/)
 [![](https://img.shields.io/github/issues/codeaddicts/libargument.svg)](https://github.com/codeaddicts/libArgument/issues)
 
