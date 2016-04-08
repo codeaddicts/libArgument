@@ -11,9 +11,14 @@ It allows you to validate arguments on-the-fly and saves you hours of work.
 If you want to test the latest features, please download the source and compile it yourself.  
 The release may not be up-to-date.
 
+You can always get the latest stable release from nuget.
+
 Features:
 
 * The generic parsing method works with any class
+* Supports primitive type conversions
+* Supports enum type conversions
+* Supports one-dimensional array type conversions
 * Supports Windows-style arguments: `/arg value`
 * Supports POSIX style switches and arguments: `-a -b value`
 * Supports POSIX style merged switches: `-abc` equals `-a -b -c`
