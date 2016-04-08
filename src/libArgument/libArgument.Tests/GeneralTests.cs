@@ -1,6 +1,5 @@
 ﻿using System;
 using Codeaddicts.libArgument;
-using Codeaddicts.libArgument.Attributes;
 using NUnit.Framework;
 
 namespace Codeaddicts.libArgument.Tests
@@ -23,6 +22,9 @@ namespace Codeaddicts.libArgument.Tests
 
 			[Argument ("-b", "--bool")]
 			public bool ABool;
+
+			[Argument ("--collect")]
+			public int[] ACollection;
 		}
 
 		[Test]
@@ -60,6 +62,15 @@ namespace Codeaddicts.libArgument.Tests
 			Assert.AreEqual (123, options.ANumber);
 			Assert.AreEqual (3.1416f, options.AFloat);
 			Assert.That (options.ABool);
+		}
+
+		[Test]
+		public void TestArrayIntegration () {
+			var args = new [] { "-n", "321", "--collect", "1", "--collect", "9", "--bool", "true" };
+			var options = ArgumentParser.Parse<Options> (args);
+			Assert.AreEqual (options.ANumber, 321);
+			Assert.IsTrue (options.ABool);
+			Assert.That (options.ACollection, Is.EquivalentTo (new [] { 1, 9 }));
 		}
 	}
 }

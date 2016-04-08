@@ -1,10 +1,8 @@
 ﻿using System;
 
-namespace Codeaddicts.libArgument.Documentation
-{
+namespace Codeaddicts.libArgument {
 
-	public class DocNode
-	{
+	class DocNode {
 		public readonly string FieldName;
 		public string[] Names;
 		public string Description;

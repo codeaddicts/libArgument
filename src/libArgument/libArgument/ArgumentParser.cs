@@ -4,16 +4,13 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Codeaddicts.libArgument.Attributes;
-using Codeaddicts.libArgument.Documentation;
 
-namespace Codeaddicts.libArgument
-{
+namespace Codeaddicts.libArgument {
+	
 	/// <summary>
 	/// Codeaddicts ArgumentParser
 	/// </summary>
-	public static class ArgumentParser
-	{
+	public static class ArgumentParser {
 		static List<DocNode> documentation;
 
 		/// <summary>
@@ -55,8 +52,7 @@ namespace Codeaddicts.libArgument
 		/// Generates and prints the argument doc.
 		/// </summary>
 		/// <typeparam name="T">The class that contains the options.</typeparam>
-		public static void Help ()
-		{
+		public static void Help () {
 			var accum = new StringBuilder ();
 			foreach (var node in documentation) {
 				if (node.Names.Any ()) {
@@ -122,32 +118,113 @@ namespace Codeaddicts.libArgument
 				if (argument != null) {
 					argument.AutoInfer (field.Name);
 
-					foreach (var arg in args) {
+					for (var i = 0; i < args.Count; i++) {
+						var arg = args [i];
 						
-						if (argument.names.Any (str => arg.Contains ("=") ? arg.StartsWith (str) && arg.Length > str.Length && arg[str.Length] == '=' : arg == str)) {
+						if (argument.names.Any (str => arg.Contains ("=")
+							? (
+								true
+								&& arg.StartsWith (str)
+								&& arg.Length > str.Length
+								&& arg[str.Length] == '='
+							) : arg == str)) {
 							
 							var next = arg.Contains ("=")
 								? arg.Substring (arg.IndexOf ("=") + 1)
 								: args.SkipWhile (str => arg != str).Skip (1).FirstOrDefault ();
-							
+
+							// Verify that next is not null
 							if (next == null)
 								throw new ArgumentOutOfRangeException ();
 
+							next = next.Trim (' ', '\t', '"');
+
 							// Cast the string to the type of the field
 							object value;
-							try {
-								value = TypeDescriptor.GetConverter (field.FieldType).ConvertFromInvariantString (next.Trim ('"'));
-							} catch {
-								throw new Exception (string.Format ("Cannot convert <string> to <{0}>.", field.FieldType));
+							if (!TryGetGenericWithArray<T> (options, field, next, out value))
+								throw new ArgumentException (string.Format ("Cannot convert '{0}' to <{1}>.", next, field.FieldType));
+
+							// Set the value of the field
+							field.SetValue (options, value);
+
+							// Correct args
+							if (field.FieldType.IsArray) {
+								args.RemoveRange (i, 2);
+								i--;
 							}
 
-							// Set the value of the field and return
-							field.SetValue (options, value);
 							continue;
 						}
 					}
 				}
 			}
+		}
+
+		static bool TryGetGeneric (Type type, string str, out object value) {
+			if (TryGetPrimitive (type, str, out value))
+				return true;
+			if (TryGetEnum (type, str, out value))
+				return true;
+			return false;
+		}
+
+		static bool TryGetGenericWithArray<T> (T options, FieldInfo field, string str, out object value) {
+			if (TryGetGeneric (field.FieldType, str, out value))
+				return true;
+			if (TryGetArray (options, field, str, out value))
+				return true;
+			return false;
+		}
+
+		static bool TryGetPrimitive (Type type, string str, out object value) {
+			value = null;
+			if (!type.IsPrimitive && !type.IsEquivalentTo (typeof (string)))
+				return false;
+			try {
+				value = TypeDescriptor.GetConverter (type).ConvertFromInvariantString (str);
+			} catch {
+				return false;
+			}
+			return true;
+		}
+
+		static bool TryGetEnum (Type type, string str, out object value) {
+			value = null;
+			if (!type.IsEnum)
+				return false;
+			try {
+				value = Enum.Parse (type, str, true);
+			} catch {
+				return false;
+			}
+			return true;
+		}
+
+		static bool TryGetArray<T> (T options, FieldInfo field, string str, out object value) {
+			value = null;
+			if (!field.FieldType.IsArray)
+				return false;
+			try {
+				var elementtype = field.FieldType.GetElementType ();
+				object tmpval;
+				if (!TryGetGeneric (elementtype, str, out tmpval))
+					return false;
+				Console.WriteLine (tmpval);
+				var arr = field.GetValue (options) as Array;
+				Array newarr;
+				if (arr == null) {
+					newarr = Array.CreateInstance (elementtype, 1);
+					newarr.SetValue (tmpval, 0);
+				} else {
+					newarr = Array.CreateInstance (elementtype, arr.Length + 1);
+					Array.Copy (arr, 0, newarr, 0, arr.Length);
+					newarr.SetValue (tmpval, arr.Length);
+				}
+				value = newarr;
+			} catch {
+				return false;
+			}
+			return true;
 		}
 
 		static void ParseDoc<T> (T options, string fieldname) where T : class, new()

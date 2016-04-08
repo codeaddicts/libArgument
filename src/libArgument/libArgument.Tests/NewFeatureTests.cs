@@ -1,6 +1,5 @@
 ﻿using System;
 using Codeaddicts.libArgument;
-using Codeaddicts.libArgument.Attributes;
 using NUnit.Framework;
 
 namespace Codeaddicts.libArgument.Tests

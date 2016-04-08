@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Linq;
 
-namespace Codeaddicts.libArgument.Attributes
-{
+namespace Codeaddicts.libArgument {
 	[AttributeUsage (AttributeTargets.Field, AllowMultiple = true)]
-	public class Argument : Attribute
-	{
+	public class Argument : Attribute {
 		public string[] names;
 
-		public Argument () {
-		}
+		public Argument () { }
 
 		public Argument (params string[] names) {
 			this.names = names;

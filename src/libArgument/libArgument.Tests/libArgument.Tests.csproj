@@ -7,6 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Codeaddicts.libArgument.Tests</RootNamespace>
     <AssemblyName>libArgument.Tests</AssemblyName>
+    <ReleaseVersion>0.2</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,6 +37,8 @@
   <ItemGroup>
     <Compile Include="GeneralTests.cs" />
     <Compile Include="NewFeatureTests.cs" />
+    <Compile Include="ArrayTests.cs" />
+    <Compile Include="EnumTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
