@@ -21,7 +21,7 @@ namespace Codeaddicts.libArgument.Tests {
 		[Test]
 		public void TestEnumConversion () {
 			var args = new [] { "--enum", "bb" };
-			Assert.AreEqual (TestEnum.bb, ArgumentParser.Parse<Options> (args).Enumerable);
+			Assert.AreEqual (TestEnum.bb, ArgumentParser<Options>.Parse (args).Enumerable);
 		}
 	}
 }

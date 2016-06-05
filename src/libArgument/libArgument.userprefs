@@ -1,21 +1,24 @@
-﻿<Properties StartupItem="libArgument.Tests\libArgument.Tests.csproj" GitUserInfo="UsingGIT" RefactoringSettings.EnableRefactorings="True">
+﻿<Properties RefactoringSettings.EnableRefactorings="True" GitUserInfo="UsingGIT" StartupItem="libArgument.Tests\libArgument.Tests.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.Workbench ActiveDocument="libArgument\ArgumentParser.cs">
     <Files>
-      <File FileName="libArgument\ArgumentParser.cs" Line="158" Column="7" />
-      <File FileName="libArgument.Tests\ArrayTests.cs" Line="18" Column="108" />
-      <File FileName="libArgument.Tests\GeneralTests.cs" Line="74" Column="4" />
+      <File FileName="libArgument\ArgumentParser.cs" Line="75" Column="58" />
+      <File FileName="libArgument\Argument.cs" Line="1" Column="1" />
     </Files>
     <Pads>
-      <Pad Id="MonoDevelop.NUnit.TestPad">
+      <Pad Id="MonoDevelop.UnitTesting.TestPad">
         <State name="__root__">
           <Node name="libArgument" expanded="True">
             <Node name="libArgument.Tests" expanded="True">
               <Node name="Codeaddicts" expanded="True">
                 <Node name="libArgument" expanded="True">
                   <Node name="Tests" expanded="True">
-                    <Node name="EnumTests" expanded="True">
-                      <Node name="TestEnumConversion" selected="True" />
+                    <Node name="ArrayTests" expanded="True">
+                      <Node name="TestArgumentList" selected="True" />
                     </Node>
                     <Node name="GeneralTests" expanded="True" />
                     <Node name="NewFeatureTests" expanded="True" />
@@ -28,8 +31,5 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.libArgument.Tests PreferredExecutionTarget="MonoDevelop.Default" />
 </Properties>

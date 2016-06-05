@@ -23,26 +23,23 @@ namespace Codeaddicts.libArgument.Tests
 			[Switch ("-a")] public bool a;
 			[Switch ("-b")] public bool b;
 			[Switch ("-c")] public bool c;
+
+            [Argument (ArgumentPosition.Last)]
+            public string Filename;
 		}
 
 		[Test]
 		public void TestInferName () {
 			var args = new [] { "--msg", "test", "--num", "1234", "--something" };
-			var options = ArgumentParser.Parse<Options> (args);
+			var options = ArgumentParser<Options>.Parse (args);
 			StringAssert.AreEqualIgnoringCase ("test", options.msg);
 			Assert.AreEqual (1234, options.num);
 			Assert.That (options.something);
 		}
 
 		[Test]
-		public void TestDocumentation () {
-			var options = ArgumentParser.Parse<Options> (new string [] { });
-			Assert.DoesNotThrow (ArgumentParser.Help);
-		}
-
-		[Test]
 		public void TestGNUStyleArguments () {
-			var options = ArgumentParser.Parse<Options> (new [] { "--msg=test", "--num=1234", "--something" });
+			var options = ArgumentParser<Options>.Parse (new [] { "--msg=test", "--num=1234", "--something" });
 			StringAssert.AreEqualIgnoringCase ("test", options.msg);
 			Assert.AreEqual (1234, options.num);
 			Assert.That (options.something);
@@ -50,11 +47,19 @@ namespace Codeaddicts.libArgument.Tests
 
 		[Test]
 		public void TestPOSIXStyleSwitches () {
-			var options = ArgumentParser.Parse<Options> (new [] { "-abc" });
+            Assert.Ignore ("Not supported as of v1.0");
+			var options = ArgumentParser<Options>.Parse (new [] { "-abc" });
 			Assert.That (options.a);
 			Assert.That (options.b);
 			Assert.That (options.c);
 		}
+
+        [Test]
+        public void TestPositionalArgumentsLast () {
+            var options = ArgumentParser<Options>.Parse (new [] { "--msg=test", "hello" });
+            StringAssert.AreEqualIgnoringCase ("hello", options.Filename);
+            StringAssert.AreEqualIgnoringCase ("test", options.msg);
+        }
 	}
 }
 

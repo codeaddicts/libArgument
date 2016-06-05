@@ -1,270 +1,268 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace Codeaddicts.libArgument {
-	
-	/// <summary>
-	/// Codeaddicts ArgumentParser
-	/// </summary>
-	public static class ArgumentParser {
-		static List<DocNode> documentation;
 
-		/// <summary>
-		/// Parses the specified arguments.
-		/// </summary>
-		/// <param name="args">Arguments.</param>
-		/// <typeparam name="T">The class that contains the options.</typeparam>
-		public static T Parse<T> (string[] args) where T : class, new()
-		{
-			// Create the documentation cache for this class
-			if (documentation == null)
-				documentation = new List<DocNode> ();
-			else
-				documentation.Clear ();
+    /// <summary>
+    /// Argument parser.
+    /// </summary>
+    /// <typeparam name="T">The target class.</typeparam>
+    public static class ArgumentParser<T> where T: class, new() {
 
-			// Instantiate the class that contains the options
-			var options = new T ();
+        /// <summary>
+        /// The cache.
+        /// </summary>
+        static APCache<T> cache;
 
-			// Create a new List<string> from the supplied arguments
-			var list = new List<string> (args);
+        /// <summary>
+        /// Parses the specified arguments.
+        /// </summary>
+        /// <param name="args">Arguments.</param>
+        public static T Parse (string [] args) {
 
-			// Get all public fields from the class instance
-			var fields = options.GetType ().GetFields (BindingFlags.Instance | BindingFlags.Public);
+            // Create the cache
+            cache = new APCache<T> (args);
 
-			// Iterate over all fields
-			foreach (var item in fields) {
+            // Iterate over the fields
+            var i = 0;
+            while (cache.See ()) {
+                var current = cache.Fields [i];
+                ParseField (i++, current);
+            }
 
-				// Parse the current field
-				ParseDoc<T> (options, item.Name);
-				ParseField<T> (options, list, item.Name);
+            // Return the modified instance
+            return cache.Target;
+        }
 
-			}
+        /// <summary>
+        /// Parses a field.
+        /// </summary>
+        /// <param name="position">Position.</param>
+        /// <param name="field">Field.</param>
+        static void ParseField (int position, FieldInfo field) {
 
-			// Return the generated class instance
-			return options;
-		}
+            // Get the attributes of the field
+            var attrs = field.GetCustomAttributes (true);
 
-		/// <summary>
-		/// Generates and prints the argument doc.
-		/// </summary>
-		/// <typeparam name="T">The class that contains the options.</typeparam>
-		public static void Help () {
-			var accum = new StringBuilder ();
-			foreach (var node in documentation) {
-				if (node.Names.Any ()) {
-					foreach (var name in node.Names) {
-						accum.AppendFormat ("{0,-20} | ", name);
-						if (!string.IsNullOrEmpty (node.Description))
-							accum.AppendLine (node.Description);
-						else
-							accum.AppendLine ("<No Description>");
-					}
-				}
-			}
-			Console.WriteLine (accum);
-		}
+            // Iterate over the attributes
+            foreach (var attr in attrs) {
+                var arg = attr as ArgumentBase;
 
-		/// <summary>
-		/// Parses the field.
-		/// </summary>
-		/// <param name="options">Options.</param>
-		/// <param name="args">Arguments.</param>
-		/// <param name="fieldname">Name.</param>
-		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		static void ParseField<T> (T options, List<string> args, string fieldname) where T : class, new()
-		{
-			var switches = args
-				.Where (arg => arg.Length > 0 && !arg.StartsWith ("--") && arg [0] == '-')
-				.SelectMany (arg => arg.Substring (1)).ToList ();
-			
-			foreach (var @switch in switches)
-				args.Add (string.Format ("-{0}", @switch));
+                // Skip the attribute if it does not
+                // inherit the argument base class
+                if (arg == null) {
+                    continue;
+                }
 
-			// Get field
-			var field = options.GetType ().GetField (fieldname);
+                // Parse the field
+                arg.AutoInfer (field.Name);
+                while (cache.See ()) {
+                    ParseField (position, field, arg);
+                }
+                cache.Flush ();
+            }
+        }
 
-			// Get attributes
-			var attributes = field.GetCustomAttributes (true);
+        /// <summary>
+        /// Skips an attribute and throws an exception
+        /// if the attribute was required.
+        /// </summary>
+        /// <param name="attr">Attr.</param>
+        static void Skip (ArgumentBase attr) {
+            if (attr.IsRequired) {
+                var args = string.Join ("|", attr.Names);
+                throw new ArgumentException ($"Required argument '{args}' not set.");;
+            }
+            cache.SkipArgument ();
+        }
 
-			// Iterate over the attributes
-			foreach (var attrib in attributes) {
+        /// <summary>
+        /// Parses a field.
+        /// </summary>
+        /// <returns>The field.</returns>
+        /// <param name="position">Position.</param>
+        /// <param name="field">Field.</param>
+        /// <param name="attr">Attr.</param>
+        static void ParseField (int position, FieldInfo field, ArgumentBase attr) {
+            string current = cache.PeekArgument ();
+            string next = current;
 
-				// Check if the current attribute is of type Switch
-				var @switch = attrib as Switch;
-				if (@switch != null) {
-					@switch.AutoInfer (field.Name);
+            // Check if the argument is a switch
+            if (attr is Switch) {
 
-					var @continue = false;
-					foreach (var arg in args) {
-						if (@switch.names.Any (str => arg == str)) {
-							field.SetValue (options, true);
-							@continue = true;
-							break;
-						}
-					}
+                // Skip the field if the name of the argument
+                // is not to be found in the name list of the attribute
+                if (!attr.Names.Contains (current)) {
+                    cache.SkipArgument ();
+                    return;
+                }
 
-					if (@continue)
-						continue;
-				}
+                // Set the field value to true
+                try {
+                    field.SetValue (cache.Target, true);
+                } catch { }
+                cache.RemoveArgument ();
+                cache.Finish ();
+                return;
+            }
 
-				// Get the current attribute
-				var argument = attrib as Argument;
+            // Check if the argument is positional
+            if (attr.IsPositional) {
 
-				// Check if the current attribute is an Argument attribute
-				if (argument != null) {
-					argument.AutoInfer (field.Name);
+                // Check if the last position is requested
+                if (attr.Position == -1) {
+                    if (cache.See (1)) {
+                        Skip (attr);
+                        return;
+                    }
+                } else if (attr.Position != cache.ActualPosition) {
+                    Skip (attr);
+                    return;
+                }
+            }
 
-					for (var i = 0; i < args.Count; i++) {
-						var arg = args [i];
-						
-						if (argument.names.Any (str => arg.Contains ("=")
-							? (
-								true
-								&& arg.StartsWith (str)
-								&& arg.Length > str.Length
-								&& arg[str.Length] == '='
-							) : arg == str)) {
-							
-							var next = arg.Contains ("=")
-								? arg.Substring (arg.IndexOf ("=") + 1)
-								: args.SkipWhile (str => arg != str).Skip (1).FirstOrDefault ();
+            Console.WriteLine (current);
 
-							// Verify that next is not null
-							if (next == null)
-								throw new ArgumentOutOfRangeException ();
+            // Check if the argument is in the following form:
+            // [argument]=[value]
+            var GnuStyle = current.Contains ("=");
 
-							next = next.Trim (' ', '\t', '"');
+            // Check if the attribute is positional
+            if (!attr.IsPositional) {
 
-							// Cast the string to the type of the field
-							object value;
-							if (!TryGetGenericWithArray<T> (options, field, next, out value))
-								throw new ArgumentException (string.Format ("Cannot convert '{0}' to <{1}>.", next, field.FieldType));
+                // Check if the argument is a GNU-style argument
+                if (GnuStyle) {
+                    var parts = current.Split (new char [] { '=' }, 2);
+                    current = parts [0];
+                    next = parts [1];
+                }
 
-							// Set the value of the field
-							field.SetValue (options, value);
+                // Skip the field if the name of the argument
+                // is not to be found in the name list of the attribute
+                if (!attr.Names.Contains (current)) {
+                    Skip (attr);
+                    return;
+                }
 
-							// Correct args
-							if (field.FieldType.IsArray) {
-								args.RemoveRange (i, 2);
-								i--;
-							}
+                // Get the next argument
+                if (!GnuStyle) {
+                    next = cache.PeekArgument (1);
+                }
+            }
 
-							continue;
-						}
-					}
-				}
-			}
-		}
+            object result;
+            var i = 0;
+            do {
 
-		static bool TryGetGeneric (Type type, string str, out object value) {
-			if (TryGetPrimitive (type, str, out value))
-				return true;
-			if (TryGetEnum (type, str, out value))
-				return true;
-			return false;
-		}
+                // Try getting the value
+                if (!TryGetGeneric (field.FieldType, field, next, out result)) {
+                    throw new ArgumentException (
+                        $"Cannot convert '{next}' to <{field.FieldType}>."
+                    );
+                }
 
-		static bool TryGetGenericWithArray<T> (T options, FieldInfo field, string str, out object value) {
-			if (TryGetGeneric (field.FieldType, str, out value))
-				return true;
-			if (TryGetArray (options, field, str, out value))
-				return true;
-			return false;
-		}
+                // Set the value of the field
+                try {
+                    field.SetValue (cache.Target, result);
+                } catch { }
 
-		static bool TryGetPrimitive (Type type, string str, out object value) {
-			value = null;
-			if (!type.IsPrimitive && !type.IsEquivalentTo (typeof (string)))
-				return false;
-			try {
-				value = TypeDescriptor.GetConverter (type).ConvertFromInvariantString (str);
-			} catch {
-				return false;
-			}
-			return true;
-		}
+                // Skip the remaining arguments
+                try {
+                    if ((i == 0 || !attr.IsVariadic) && !attr.IsPositional && !GnuStyle) {
+                        cache.RemoveArgument ();
+                    }
+                    cache.RemoveArgument ();
+                    if (attr.IsPositional)
+                        break;
+                } catch { }
 
-		static bool TryGetEnum (Type type, string str, out object value) {
-			value = null;
-			if (!type.IsEnum)
-				return false;
-			try {
-				value = Enum.Parse (type, str, true);
-			} catch {
-				return false;
-			}
-			return true;
-		}
+                // Check if the argument is variadic
+                if (attr.IsVariadic) {
 
-		static bool TryGetArray<T> (T options, FieldInfo field, string str, out object value) {
-			value = null;
-			if (!field.FieldType.IsArray)
-				return false;
-			try {
-				var elementtype = field.FieldType.GetElementType ();
-				object tmpval;
-				if (!TryGetGeneric (elementtype, str, out tmpval))
-					return false;
-				Console.WriteLine (tmpval);
-				var arr = field.GetValue (options) as Array;
-				Array newarr;
-				if (arr == null) {
-					newarr = Array.CreateInstance (elementtype, 1);
-					newarr.SetValue (tmpval, 0);
-				} else {
-					newarr = Array.CreateInstance (elementtype, arr.Length + 1);
-					Array.Copy (arr, 0, newarr, 0, arr.Length);
-					newarr.SetValue (tmpval, arr.Length);
-				}
-				value = newarr;
-			} catch {
-				return false;
-			}
-			return true;
-		}
+                    // Skip if there are no more elements
+                    if (!cache.See ()) {
+                        break;
+                    }
+                    try {
 
-		static void ParseDoc<T> (T options, string fieldname) where T : class, new()
-		{
-			// Get field
-			var field = options.GetType ().GetField (fieldname);
+                        // Get the next argument
+                        next = cache.PeekArgument ();
 
-			// Get or create a documentation node for this field
-			var node = documentation.Exists (_node => _node.FieldName == fieldname)
-				? documentation.First (_node => _node.FieldName == fieldname)
-				: new DocNode (fieldname);
+                        // Check if the next argument is an actual argument
+                        if (next.StartsWith ("-", StringComparison.Ordinal)) {
+                            break;
+                        }
+                    } catch {
+                        break;
+                    }
+                }
 
-			// Get attributes
-			var attributes = field.GetCustomAttributes (true);
+                i++;
+            } while (attr.IsVariadic);
 
-			// Iterate over all attributes
-			foreach (var attrib in attributes) {
+            // Increment the actual position by one
+            cache.Increment ();
+        }
 
-				// Check if the current attribute is of type Argument or Switch
-				var xarg = attrib as Argument;
-				if (xarg != null) {
-					xarg.AutoInfer (field.Name);
-					node.Names = xarg.names;
-				}
+        static bool TryGetGeneric (Type type, FieldInfo field, string arg, out object result) {
+            result = null;
 
-				// Check if the current attribute is of type Docs
-				var doc = attrib as Docs;
+            // Check if the field is a string
+            if (type.IsEquivalentTo (typeof (string))) {
+                result = arg;
+                return true;
+            }
 
-				// If not, skip this attribute
-				if (doc == null)
-					continue;
+            // Check if the field is a primitive
+            if (type.IsPrimitive) {
 
-				// Return the documentation for this field
-				node.Description = doc.description;
-			}
+                // Check if the field is a string
+                if (type.IsEquivalentTo (typeof (string))) {
+                    result = arg;
+                    return true;
+                }
 
-			if (documentation.Exists (_node => _node.FieldName == fieldname))
-				documentation.Remove (documentation.First (_node => _node.FieldName == fieldname));
-			
-			documentation.Add (node);
-		}
-	}
+                try {
+                    var converter = TypeDescriptor.GetConverter (type);
+                    result = converter.ConvertFromInvariantString (arg);
+                    return true;
+                } catch { }
+            }
+
+            // Check if the field is an enum
+            if (type.IsEnum) {
+                try {
+                    result = Enum.Parse (type, arg, true);
+                    return true;
+                } catch { }
+            }
+
+            // Check if the field is an array
+            if (type.IsArray) {
+                try {
+                    var elementtype = type.GetElementType ();
+                    object tmpval;
+                    if (!TryGetGeneric (elementtype, field, arg, out tmpval))
+                        return false;
+                    var arr = field.GetValue (cache.Target) as Array;
+                    Array newarr;
+                    if (arr == null) {
+                        newarr = Array.CreateInstance (elementtype, 1);
+                        newarr.SetValue (tmpval, 0);
+                    } else {
+                        newarr = Array.CreateInstance (elementtype, arr.Length + 1);
+                        Array.Copy (arr, 0, newarr, 0, arr.Length);
+                        newarr.SetValue (tmpval, arr.Length);
+                    }
+                    result = newarr;
+                    return true;
+                } catch { }
+            }
+
+            return false;
+        }
+    }
 }
+

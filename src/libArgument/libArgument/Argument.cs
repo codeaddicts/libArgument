@@ -1,21 +1,32 @@
 ﻿using System;
-using System.Linq;
 
 namespace Codeaddicts.libArgument {
-	[AttributeUsage (AttributeTargets.Field, AllowMultiple = true)]
-	public class Argument : Attribute {
-		public string[] names;
 
-		public Argument () { }
+    /// <summary>
+    /// Argument.
+    /// </summary>
+    [AttributeUsage (AttributeTargets.Field, AllowMultiple = true)]
+    public class Argument : ArgumentBase {
 
-		public Argument (params string[] names) {
-			this.names = names;
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Argument"/> class.
+        /// </summary>
+        public Argument () { }
 
-		public void AutoInfer (string fieldname) {
-			if (names == null || !names.Any ())
-				names = new [] { string.Format ("--{0}", fieldname) };
-		}
-	}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Argument"/> class.
+        /// </summary>
+        /// <param name="names">Names.</param>
+        public Argument (params string [] names)
+            : base (names) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Argument"/> class.
+        /// </summary>
+        /// <param name="position">Position.</param>
+        /// <param name="names">Names.</param>
+        public Argument (ArgumentPosition position, params string [] names)
+            : base (position, names) { }
+    }
 }
 

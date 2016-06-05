@@ -1,12 +1,20 @@
 ﻿using System;
 
 namespace Codeaddicts.libArgument {
-	[AttributeUsage (AttributeTargets.Field, AllowMultiple = false)]
+
+    /// <summary>
+    /// Documentation.
+    /// </summary>
+	[AttributeUsage (AttributeTargets.Field | AttributeTargets.Class, AllowMultiple = false)]
 	public class Docs : Attribute {
-		public readonly string description;
+
+        /// <summary>
+        /// The description.
+        /// </summary>
+		public readonly string Description;
 
 		public Docs (string description) {
-			this.description = description;
+			Description = description;
 		}
 	}
 }

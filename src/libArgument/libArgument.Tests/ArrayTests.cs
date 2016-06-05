@@ -8,14 +8,14 @@ namespace Codeaddicts.libArgument.Tests {
 		
 		public class Options {
 
-			[Argument ("--libs")]
+			[ArgumentList ("--libs")]
 			public string[] libs;
 		}
 
 		[Test]
-		public void TestEnumConversion () {
-			var args = new [] { "--libs", "1.so", "--libs", "2.so", "--libs", "3.so" };
-			Assert.That (ArgumentParser.Parse<Options> (args).libs, Is.EquivalentTo (new [] { "1.so", "2.so", "3.so" }));
+        public void TestArgumentList () {
+			var args = new [] { "--libs", "1.so", "2.so", "3.so" };
+			Assert.That (ArgumentParser<Options>.Parse (args).libs, Is.EquivalentTo (new [] { "1.so", "2.so", "3.so" }));
 		}
 	}
 }
