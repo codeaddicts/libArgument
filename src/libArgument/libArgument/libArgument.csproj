@@ -34,7 +34,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ArgumentBase.cs" />
-    <Compile Include="Docs.cs" />
     <Compile Include="Switch.cs" />
     <Compile Include="DocNode.cs" />
     <Compile Include="Deprecated.cs" />
@@ -46,6 +45,12 @@
     <Compile Include="Argument.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ArgumentList.cs" />
+    <Compile Include="Documentation.cs" />
+    <Compile Include="DocBase.cs" />
+    <Compile Include="DocVersion.cs" />
+    <Compile Include="DocProlog.cs" />
+    <Compile Include="DocEpilog.cs" />
+    <Compile Include="Doc.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="v0\" />

@@ -9,15 +9,12 @@ namespace Codeaddicts.libArgument.Tests
 	{
 		public class Options {
 			[Argument]
-			[Docs ("A message")]
 			public string msg;
 
 			[Argument]
-			[Docs ("A number")]
 			public int num;
 
 			[Switch]
-			[Docs ("A something")]
 			public bool something;
 
 			[Switch ("-a")] public bool a;

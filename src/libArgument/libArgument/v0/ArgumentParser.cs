@@ -53,6 +53,7 @@ namespace Codeaddicts.libArgument.v0 {
 		/// </summary>
 		/// <typeparam name="T">The class that contains the options.</typeparam>
 		public static void Help () {
+            /*
 			var accum = new StringBuilder ();
 			foreach (var node in documentation) {
 				if (node.Names.Any ()) {
@@ -66,6 +67,7 @@ namespace Codeaddicts.libArgument.v0 {
 				}
 			}
 			Console.WriteLine (accum);
+			*/
 		}
 
 		/// <summary>
@@ -247,18 +249,18 @@ namespace Codeaddicts.libArgument.v0 {
 				var xarg = attrib as ArgumentBase;
 				if (xarg != null) {
 					xarg.AutoInfer (field.Name);
-					node.Names = xarg.Names;
+					//node.Names = xarg.Names;
 				}
 
 				// Check if the current attribute is of type Docs
-				var doc = attrib as Docs;
+				//var doc = attrib as Docs;
 
 				// If not, skip this attribute
-				if (doc == null)
-					continue;
+				//if (doc == null)
+				//	continue;
 
 				// Return the documentation for this field
-				node.Description = doc.Description;
+				//node.Description = doc.Description;
 			}
 
 			if (documentation.Exists (_node => _node.FieldName == fieldname))

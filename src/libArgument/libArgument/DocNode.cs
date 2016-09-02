@@ -13,19 +13,13 @@ namespace Codeaddicts.libArgument {
 		public readonly string FieldName;
 
         /// <summary>
-        /// The names.
-        /// </summary>
-		public string[] Names;
-
-        /// <summary>
         /// The description.
         /// </summary>
 		public string Description;
 
-		public DocNode (string fieldName, string[] names = null, string description = "") {
+		public DocNode (string fieldName, string description = "") {
 			FieldName = fieldName;
 			Description = description;
-			Names = names;
 		}
 	}
 }
