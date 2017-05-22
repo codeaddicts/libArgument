@@ -123,7 +123,7 @@ namespace Codeaddicts.libArgument {
                 }
             }
 
-            Console.WriteLine (current);
+            // Console.WriteLine (current);
 
             // Check if the argument is in the following form:
             // [argument]=[value]
